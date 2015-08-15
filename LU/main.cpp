@@ -77,7 +77,7 @@ bool LU(const MatrixXf &a, MatrixXf &l, MatrixXf &u, MatrixXf &p) {
 
 	// permutate matrix U using P
 #if 0
-	u = p * u;
+	u = p * nu;
 #else
 	for (int r = 0; r < size; r++) {
 		u.row(r) = nu.row(row_indexes[r]);
