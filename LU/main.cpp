@@ -7,19 +7,18 @@ using namespace Eigen;
 
 // My own implementation of LU decomposition with partial pivoting
 bool LU(const MatrixXf &a, MatrixXf &l, MatrixXf &u, MatrixXf &p) {
+	// 'a' should be a square matrix, so does 'l', 'u', and 'p'
 	assert(a.rows() == a.cols());
 	int size = a.rows();
 
-	// indexes for row exchange
-	// NOTE: we will exchange rows of U after decomposition
-	ArrayXi indexes(size);
-	for (int r = 0; r < size; r++) {
-		indexes(r) = r;
-	}
+	// no pivoting upper triangular matrix 'nu' elimination begin with 'a'
+	MatrixXf nu = a;
 
-	// un-permutated upper triangular matrix
-	// 'indexes' has row order 
-	MatrixXf uu = a;
+	// row_indexes has row order of 'nu'
+	ArrayXi row_indexes(size);
+	for (int r = 0; r < size; r++) {
+		row_indexes(r) = r;
+	}
 
 	// lower triangular matrix
 	l = MatrixXf::Identity(size, size);
@@ -27,13 +26,13 @@ bool LU(const MatrixXf &a, MatrixXf &l, MatrixXf &u, MatrixXf &p) {
 	// 'i' is diagonal index of the matrix 
 	for (int i = 0; i < size; i++) {
 		// find real pivot index
-		int pivot_index = indexes[i];
-		float maximum = abs(uu(pivot_index, i));
+		int pivot_index = row_indexes[i];
+		float maximum = abs(nu(pivot_index, i));
 		for (int r = i + 1; r < size; r++) {
-			float value = abs(uu(indexes[r], i));
+			float value = abs(nu(row_indexes[r], i));
 
 			if (value > maximum) {
-				pivot_index = indexes[r];
+				pivot_index = row_indexes[r];
 				maximum = value;
 			}
 		}
@@ -41,7 +40,7 @@ bool LU(const MatrixXf &a, MatrixXf &l, MatrixXf &u, MatrixXf &p) {
 		// if row exchange is required
 		if (pivot_index > i) {
 			// swap pivot index with current row index
-			std::swap(indexes[i], indexes[pivot_index]);
+			std::swap(row_indexes[i], row_indexes[pivot_index]);
 
 			// swap rows in L
 			for (int c = 0; c < i; c++) {
@@ -50,7 +49,7 @@ bool LU(const MatrixXf &a, MatrixXf &l, MatrixXf &u, MatrixXf &p) {
 		}
 
 		// get pivot value
-		float pivot = uu(indexes[i], i);
+		float pivot = nu(row_indexes[i], i);
 		if (pivot == 0.0f) {
 			// abandon decomposition if pivot does not exist
 			return false;
@@ -58,11 +57,11 @@ bool LU(const MatrixXf &a, MatrixXf &l, MatrixXf &u, MatrixXf &p) {
 
 		for (int r = i + 1; r < size; r++) {
 			// scaler for subtract a row
-			float scaler = uu(indexes[r], i) / pivot;
+			float scaler = nu(row_indexes[r], i) / pivot;
 
 			// subtract a row from scaled pivot row
 			for (int c = i; c < size; c++) {
-				uu(indexes[r], c) -= scaler * uu(indexes[i], c);
+				nu(row_indexes[r], c) -= scaler * nu(row_indexes[i], c);
 			}
 
 			// scaler matches with L component
@@ -70,10 +69,10 @@ bool LU(const MatrixXf &a, MatrixXf &l, MatrixXf &u, MatrixXf &p) {
 		}
 	}
 
-	// generate permutation matrix P with 'indexes'
+	// generate permutation matrix P with 'row_indexes'
 	p = MatrixXf::Zero(size, size);
 	for (int r = 0; r < size; r++) {
-		p.row(r)[indexes[r]] = 1.0f;
+		p.row(r)[row_indexes[r]] = 1.0f;
 	}
 
 	// permutate matrix U using P
@@ -81,7 +80,7 @@ bool LU(const MatrixXf &a, MatrixXf &l, MatrixXf &u, MatrixXf &p) {
 	u = p * u;
 #else
 	for (int r = 0; r < size; r++) {
-		u.row(r) = uu.row(indexes[r]);
+		u.row(r) = nu.row(row_indexes[r]);
 	}
 #endif
 
