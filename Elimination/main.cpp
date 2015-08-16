@@ -11,41 +11,34 @@ bool GaussElimination(const MatrixXf &a, const VectorXf &b, MatrixXf &u, VectorX
 	// 'a' should be a square matrix
 	assert(a.rows() == a.cols());
 
-	// right hand side vector
+	// left hand side matrix A
+	u = a;
+
+	// right hand side vector b
 	c = b;
-
-	// no pivoting upper triangular matrix 'nu' elimination begin with 'a'
-	MatrixXf nu = a;
-
-	// row_indexes has row order of 'nu'
-	ArrayXi row_indexes(a.rows());
-	for (int r = 0; r < a.rows(); r++) {
-		row_indexes(r) = r;
-	}
 
 	// 'i' is diagonal index of the matrix 
 	for (int i = 0; i < a.rows(); i++) {
 		// find real pivot index
-		int pivot_index = row_indexes[i];
-		float maximum = abs(nu(pivot_index, i));
+		int pivot_index = i;
+		float maximum = abs(u(pivot_index, i));
 		for (int r = i + 1; r < a.rows(); r++) {
-			float value = abs(nu(row_indexes[r], i));
+			float value = abs(u(r, i));
 
 			if (value > maximum) {
-				pivot_index = row_indexes[r];
+				pivot_index = r;
 				maximum = value;
 			}
 		}
 
 		// if row exchange is required
 		if (pivot_index > i) {
-			// swap pivot index with current row index
-			std::swap(row_indexes[i], row_indexes[pivot_index]);
+			u.row(i).swap(u.row(pivot_index));
 			std::swap(c[i], c[pivot_index]);
 		}
 
 		// get pivot value
-		float pivot = nu(row_indexes[i], i);
+		float pivot = u(i, i);
 		if (pivot == 0.0f) {
 			// abandon decomposition if pivot does not exist
 			return false;
@@ -53,19 +46,14 @@ bool GaussElimination(const MatrixXf &a, const VectorXf &b, MatrixXf &u, VectorX
 
 		for (int r = i + 1; r < a.rows(); r++) {
 			// scaler for subtract a row
-			float scaler = nu(row_indexes[r], i) / pivot;
+			float scaler = u(r, i) / pivot;
 
 			// subtract a row from scaled pivot row
 			for (int c = i; c < a.cols(); c++) {
-				nu(row_indexes[r], c) -= scaler * nu(row_indexes[i], c);
+				u(r, c) -= scaler * u(i, c);
 			}
 			c[r] -= scaler * c[i];
 		}
-	}
-
-	// now row exchanges happen
-	for (int r = 0; r < a.rows(); r++) {
-		u.row(r) = nu.row(row_indexes[r]);
 	}
 
 	return true;
@@ -96,6 +84,8 @@ bool SolveGaussElimination(const MatrixXf &a, const VectorXf &b, VectorXf &x) {
 	if (!GaussElimination(a, b, u, c)) {
 		return false;
 	}
+
+	std::cout << u << std::endl;
 
 	//float determinant = u.diagonal().prod();
 
