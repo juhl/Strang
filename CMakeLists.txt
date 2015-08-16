@@ -5,4 +5,5 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 project(Strang)
 
 add_subdirectory(EigenTest)
+add_subdirectory(Elimination)
 add_subdirectory(LU)
