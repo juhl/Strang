@@ -122,7 +122,7 @@ const VectorXf SolveUTriangular(const MatrixXf u, const VectorXf &b) {
 }
 
 // Solve (P^T)LUx = b
-const VectorXf SolveLUP(const MatrixXf &l, const MatrixXf &u, const MatrixXf &p, const VectorXf &b) {
+const VectorXf SolvePLU(const MatrixXf &l, const MatrixXf &u, const MatrixXf &p, const VectorXf &b) {
 	// Step 1 : LUx = Pb
 	// Step 2 : Lc = Pb
 	// Step 3 : Ux = c
@@ -172,7 +172,7 @@ void TestLU() {
 	std::cout << "P^T * L * U * b =\n";
 	std::cout << p.transpose() * l * u * b << "\n\n";;
 
-	VectorXf x = SolveLUP(l, u, p, b);
+	VectorXf x = SolvePLU(l, u, p, b);
 	std::cout << "Ax = b, x =\n";
 	std::cout << x << "\n\n";
 }
