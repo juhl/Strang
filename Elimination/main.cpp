@@ -87,13 +87,21 @@ bool SolveGaussElimination(const MatrixXf &a, const VectorXf &b, VectorXf &x) {
 		return false;
 	}
 
-	std::cout << u << std::endl;
-
-	//float determinant = u.diagonal().prod();
-
 	x = SolveUTriangular(u, c);
 
 	return true;
+}
+
+float Determinant(const MatrixXf &a) {
+	MatrixXf u(a.rows(), a.cols());
+	VectorXf b(a.rows());
+	VectorXf c(a.rows());
+
+	if (!GaussElimination(a, b, u, c)) {
+		return false;
+	}
+
+	return u.diagonal().prod();
 }
 
 void TestGaussElimination() {
