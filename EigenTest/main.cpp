@@ -19,7 +19,7 @@ void TestEigen() {
 	printf("Is Matrix<float, Dynamic, 1> and VectorXf are same type ? %s\n", typeid(Matrix<float, Dynamic, 1>) == typeid(VectorXf) ? "yes" : "no");
 	printf("Is Matrix<float, 1, Dynamic> and RowVectorXf are same type ? %s\n", typeid(Matrix<float, 1, Dynamic>) == typeid(RowVectorXf) ? "yes" : "no");
 
-	// coefficient accessors (matrix component value is called 'coefficient' in Eigen)
+	// coefficient accessors (matrix element is called 'coefficient' in Eigen)
 	Matrix3f m1;
 	m1(0, 0) = 1.0f; m1(0, 1) = 4.0f; m1(0, 2) = 7.0f;
 	m1(1, 0) = 2.0f; m1(1, 1) = 5.0f; m1(1, 2) = 8.0f;
