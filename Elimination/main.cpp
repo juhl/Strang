@@ -122,8 +122,7 @@ void TestGaussElimination() {
 	std::cout << "Ax = b, x =\n";
 	std::cout << x << "\n\n";
 
-	PartialPivLU<MatrixXf> decomp(a);
-	x = decomp.solve(b);
+	x = a.lu().solve(b);
 	std::cout << "Ax = b, x =\n";
 	std::cout << x << "\n\n";
 }
