@@ -17,7 +17,7 @@ bool LU(const MatrixXf &a, MatrixXf &l, MatrixXf &u, MatrixXf &p) {
 	// lower triangular matrix
 	l = MatrixXf::Identity(size, size);
 
-	// indexes for exchange rows
+	// indexes for row exchanges
 	ArrayXi row_indexes(size);
 	for (int r = 0; r < size; r++) {
 		row_indexes(r) = r;
