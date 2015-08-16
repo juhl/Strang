@@ -87,9 +87,60 @@ bool LU(const MatrixXf &a, MatrixXf &l, MatrixXf &u, MatrixXf &p) {
 	return true;
 }
 
-// Example code for my own LU decomposition
+// Solve Lx = b, L is lower triangular matrix
+const VectorXf SolveLTriangular(const MatrixXf l, const VectorXf &b) {
+	VectorXf x(b.size());
+
+	for (int r = 0; r < l.rows(); r++) {
+		float k = 0;
+
+		for (int c = 0; c < r; c++) {
+			k += l(r, c) * x(c);
+		}
+
+		x(r) = (b(r) - k) / l(r, r);
+	}
+
+	return x;
+}
+
+// Solve Ux = b, U is upper triangular matrix
+const VectorXf SolveUTriangular(const MatrixXf u, const VectorXf &b) {
+	VectorXf x(b.size());
+
+	for (int r = u.rows() - 1; r >= 0; r--) {
+		float k = 0;
+
+		for (int c = u.cols() - 1; c > r; c--) {
+			k += u(r, c) * x(c);
+		}
+
+		x(r) = (b(r) - k) / u(r, r);
+	}
+
+	return x;
+}
+
+// Solve (P^T)LUx = b
+const VectorXf SolveLUP(const MatrixXf &l, const MatrixXf &u, const MatrixXf &p, const VectorXf &b) {
+	// Step 1 : LUx = Pb
+	// Step 2 : Lc = Pb
+	// Step 3 : Ux = c
+
+	// Step 1
+	VectorXf pb = p * b;
+
+	// Step 2
+	VectorXf c = SolveLTriangular(l, pb);
+
+	// Step 3
+	VectorXf x = SolveUTriangular(u, c);
+
+	return x;
+}
+
 void TestLU() {
-	const int DIMENSION = 5;
+	const int DIMENSION = 4;
 
 	MatrixXf a(DIMENSION, DIMENSION);
 	a << MatrixXf::Random(DIMENSION, DIMENSION);
@@ -117,9 +168,13 @@ void TestLU() {
 	std::cout << a * b << "\n\n";
 
 	// PA = LU
-	// A = P^T LU
+	// A = (P^T)LU
 	std::cout << "P^T * L * U * b =\n";
 	std::cout << p.transpose() * l * u * b << "\n\n";;
+
+	VectorXf x = SolveLUP(l, u, p, b);
+	std::cout << "Ax = b, x =\n";
+	std::cout << x << "\n\n";
 }
 
 int main() {
