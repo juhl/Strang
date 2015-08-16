@@ -8,9 +8,10 @@ using namespace Eigen;
 // Gaussian elimination
 // [ A | b ] = [ U | c ]
 bool GaussElimination(const MatrixXf &a, const VectorXf &b, MatrixXf &u, VectorXf &c) {
-	// 'a' should be a square matrix, so does 'l', 'u', and 'p'
+	// 'a' should be a square matrix
 	assert(a.rows() == a.cols());
 
+	// right hand side vector
 	c = b;
 
 	// no pivoting upper triangular matrix 'nu' elimination begin with 'a'
@@ -62,6 +63,7 @@ bool GaussElimination(const MatrixXf &a, const VectorXf &b, MatrixXf &u, VectorX
 		}
 	}
 
+	// now row exchanges happen
 	for (int r = 0; r < a.rows(); r++) {
 		u.row(r) = nu.row(row_indexes[r]);
 	}
