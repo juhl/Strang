@@ -33,14 +33,16 @@ bool GaussElimination(const MatrixXf &a, const VectorXf &b, MatrixXf &u, VectorX
 
 		// if row exchange is required
 		if (pivot_index > i) {
+			// swap rows of U
 			u.row(i).swap(u.row(pivot_index));
+			// swap rows of c
 			std::swap(c[i], c[pivot_index]);
 		}
 
 		// get pivot value
 		float pivot = u(i, i);
 		if (pivot == 0.0f) {
-			// abandon decomposition if pivot does not exist
+			// abandon elimination if pivot is not exist
 			return false;
 		}
 

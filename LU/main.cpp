@@ -11,57 +11,60 @@ bool LU(const MatrixXf &a, MatrixXf &l, MatrixXf &u, MatrixXf &p) {
 	assert(a.rows() == a.cols());
 	int size = a.rows();
 
-	// no pivoting upper triangular matrix 'nu' elimination begin with 'a'
-	MatrixXf nu = a;
+	// upper triangular matrix
+	u = a;
 
-	// row_indexes has row order of 'nu'
+	// lower triangular matrix
+	l = MatrixXf::Identity(size, size);
+
+	// indexes for exchange rows
 	ArrayXi row_indexes(size);
 	for (int r = 0; r < size; r++) {
 		row_indexes(r) = r;
 	}
 
-	// lower triangular matrix
-	l = MatrixXf::Identity(size, size);
-
 	// 'i' is diagonal index of the matrix 
 	for (int i = 0; i < size; i++) {
 		// find real pivot index
-		int pivot_index = row_indexes[i];
-		float maximum = abs(nu(pivot_index, i));
+		int pivot_index = i;
+		float maximum = abs(u(pivot_index, i));
 		for (int r = i + 1; r < size; r++) {
-			float value = abs(nu(row_indexes[r], i));
+			float value = abs(u(r, i));
 
 			if (value > maximum) {
-				pivot_index = row_indexes[r];
+				pivot_index = r;
 				maximum = value;
 			}
 		}
 
 		// if row exchange is required
 		if (pivot_index > i) {
-			// swap pivot index with current row index
+			// swap row indexes
 			std::swap(row_indexes[i], row_indexes[pivot_index]);
 
-			// swap rows in L
+			// swap rows of U
+			u.row(i).swap(u.row(pivot_index));
+
+			// swap rows of L
 			for (int c = 0; c < i; c++) {
 				std::swap(l(i, c), l(pivot_index, c));
 			}
 		}
 
 		// get pivot value
-		float pivot = nu(row_indexes[i], i);
+		float pivot = u(i, i);
 		if (pivot == 0.0f) {
-			// abandon decomposition if pivot does not exist
+			// abandon decomposition if pivot is not exist
 			return false;
 		}
 
 		for (int r = i + 1; r < size; r++) {
 			// scaler for subtract a row
-			float scaler = nu(row_indexes[r], i) / pivot;
+			float scaler = u(r, i) / pivot;
 
 			// subtract a row from scaled pivot row
 			for (int c = i; c < size; c++) {
-				nu(row_indexes[r], c) -= scaler * nu(row_indexes[i], c);
+				u(r, c) -= scaler * u(i, c);
 			}
 
 			// scaler matches with L component
@@ -74,15 +77,6 @@ bool LU(const MatrixXf &a, MatrixXf &l, MatrixXf &u, MatrixXf &p) {
 	for (int r = 0; r < size; r++) {
 		p.row(r)[row_indexes[r]] = 1.0f;
 	}
-
-	// permutate matrix U using P
-#if 0
-	u = p * nu;
-#else
-	for (int r = 0; r < size; r++) {
-		u.row(r) = nu.row(row_indexes[r]);
-	}
-#endif
 
 	return true;
 }
