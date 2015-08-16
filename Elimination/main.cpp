@@ -6,6 +6,7 @@
 using namespace Eigen;
 
 // Gaussian elimination
+// [ A | b ] = [ U | c ]
 bool GaussElimination(const MatrixXf &a, const VectorXf &b, MatrixXf &u, VectorXf &c) {
 	// 'a' should be a square matrix, so does 'l', 'u', and 'p'
 	assert(a.rows() == a.cols());
@@ -93,6 +94,8 @@ bool SolveGaussElimination(const MatrixXf &a, const VectorXf &b, VectorXf &x) {
 	if (!GaussElimination(a, b, u, c)) {
 		return false;
 	}
+
+	//float determinant = u.diagonal().prod();
 
 	x = SolveUTriangular(u, c);
 
