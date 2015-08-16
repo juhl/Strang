@@ -88,8 +88,8 @@ bool LU(const MatrixXf &a, MatrixXf &l, MatrixXf &u, MatrixXf &p) {
 }
 
 // Solve Lx = b, L is lower triangular matrix
-const VectorXf SolveLTriangular(const MatrixXf l, const VectorXf &b) {
-	VectorXf x(b.size());
+const VectorXf SolveLTriangular(const MatrixXf &l, const VectorXf &b) {
+	VectorXf x(b.rows());
 
 	for (int r = 0; r < l.rows(); r++) {
 		float k = 0;
@@ -105,13 +105,13 @@ const VectorXf SolveLTriangular(const MatrixXf l, const VectorXf &b) {
 }
 
 // Solve Ux = b, U is upper triangular matrix
-const VectorXf SolveUTriangular(const MatrixXf u, const VectorXf &b) {
-	VectorXf x(b.size());
+const VectorXf SolveUTriangular(const MatrixXf &u, const VectorXf &b) {
+	VectorXf x(b.rows());
 
 	for (int r = u.rows() - 1; r >= 0; r--) {
 		float k = 0;
 
-		for (int c = u.cols() - 1; c > r; c--) {
+		for (int c = r + 1; c < u.cols(); c++) {
 			k += u(r, c) * x(c);
 		}
 
@@ -172,7 +172,14 @@ void TestLU() {
 	std::cout << "P^T * L * U * b =\n";
 	std::cout << p.transpose() * l * u * b << "\n\n";;
 
+	// Solve Ax = b
 	VectorXf x = SolvePLU(l, u, p, b);
+	std::cout << "Ax = b, x =\n";
+	std::cout << x << "\n\n";
+
+	// Solve Ax = b with Eigen solver
+	PartialPivLU<MatrixXf> decomp(a);
+	x = decomp.solve(b);
 	std::cout << "Ax = b, x =\n";
 	std::cout << x << "\n\n";
 }
