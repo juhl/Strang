@@ -19,10 +19,10 @@ bool GaussElimination(const MatrixXf &a, const VectorXf &b, MatrixXf &u, VectorX
 
 	// 'i' is diagonal index of the matrix 
 	for (int i = 0; i < a.rows(); i++) {
-		// find real pivot index
-		int pivot_index = i;
-		float maximum = abs(u(pivot_index, i));
-		for (int r = i + 1; r < a.rows(); r++) {
+		// find pivot index
+		int pivot_index = -1;
+		float maximum = 0.0f;
+		for (int r = i; r < a.rows(); r++) {
 			float value = abs(u(r, i));
 
 			if (value > maximum) {
@@ -31,19 +31,19 @@ bool GaussElimination(const MatrixXf &a, const VectorXf &b, MatrixXf &u, VectorX
 			}
 		}
 
+		// get the pivot
+		float pivot = u(pivot_index, i);
+		if (pivot == 0.0f) {
+			// abandon elimination if pivot is not exist
+			return false;
+		}
+
 		// if row exchange is required
 		if (pivot_index > i) {
 			// swap rows of U
 			u.row(i).swap(u.row(pivot_index));
 			// swap rows of c
 			std::swap(c[i], c[pivot_index]);
-		}
-
-		// get pivot value
-		float pivot = u(i, i);
-		if (pivot == 0.0f) {
-			// abandon elimination if pivot is not exist
-			return false;
 		}
 
 		for (int r = i + 1; r < a.rows(); r++) {

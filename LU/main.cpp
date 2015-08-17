@@ -25,16 +25,23 @@ bool LU(const MatrixXf &a, MatrixXf &l, MatrixXf &u, MatrixXf &p) {
 
 	// 'i' is diagonal index of the matrix 
 	for (int i = 0; i < size; i++) {
-		// find real pivot index
-		int pivot_index = i;
-		float maximum = abs(u(pivot_index, i));
-		for (int r = i + 1; r < size; r++) {
+		// find pivot index
+		int pivot_index = -1;
+		float maximum = 0.0f;
+		for (int r = i; r < a.rows(); r++) {
 			float value = abs(u(r, i));
 
 			if (value > maximum) {
 				pivot_index = r;
 				maximum = value;
 			}
+		}
+
+		// get the pivot
+		float pivot = u(pivot_index, i);
+		if (pivot == 0.0f) {
+			// abandon elimination if pivot is not exist
+			return false;
 		}
 
 		// if row exchange is required
@@ -49,13 +56,6 @@ bool LU(const MatrixXf &a, MatrixXf &l, MatrixXf &u, MatrixXf &p) {
 			for (int c = 0; c < i; c++) {
 				std::swap(l(i, c), l(pivot_index, c));
 			}
-		}
-
-		// get pivot value
-		float pivot = u(i, i);
-		if (pivot == 0.0f) {
-			// abandon decomposition if pivot is not exist
-			return false;
 		}
 
 		for (int r = i + 1; r < size; r++) {
