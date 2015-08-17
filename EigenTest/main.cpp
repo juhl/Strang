@@ -8,16 +8,16 @@ using namespace Eigen;
 // Example code for using Eigen
 void TestEigen() {
 	// fixed size matrix type
-	printf("Is Matrix<float, 2, 2> and Matrix2f are same type ? %s\n", typeid(Matrix<float, 2, 2>) == typeid(Matrix2f) ? "yes" : "no");
-	printf("Is Matrix<float, 3, 3> and Matrix3f are same type ? %s\n", typeid(Matrix<float, 3, 3>) == typeid(Matrix3f) ? "yes" : "no");
-	printf("Is Matrix<float, 4, 4> and Matrix4f are same type ? %s\n", typeid(Matrix<float, 4, 4>) == typeid(Matrix4f) ? "yes" : "no");
-	printf("Is Matrix<float, 3, 1> and Vector3f are same type ? %s\n", typeid(Matrix<float, 3, 1>) == typeid(Vector3f) ? "yes" : "no");
-	printf("Is Matrix<float, 1, 3> and RowVector3f are same type ? %s\n", typeid(Matrix<float, 1, 3>) == typeid(RowVector3f) ? "yes" : "no");
+	printf("Matrix<float, 2, 2> == Matrix2f ? %s\n", typeid(Matrix<float, 2, 2>) == typeid(Matrix2f) ? "yes" : "no");
+	printf("Matrix<float, 3, 3> == Matrix3f ? %s\n", typeid(Matrix<float, 3, 3>) == typeid(Matrix3f) ? "yes" : "no");
+	printf("Matrix<float, 4, 4> == Matrix4f ? %s\n", typeid(Matrix<float, 4, 4>) == typeid(Matrix4f) ? "yes" : "no");
+	printf("Matrix<float, 3, 1> == Vector3f ? %s\n", typeid(Matrix<float, 3, 1>) == typeid(Vector3f) ? "yes" : "no");
+	printf("Matrix<float, 1, 3> == RowVector3f ? %s\n", typeid(Matrix<float, 1, 3>) == typeid(RowVector3f) ? "yes" : "no");
 
 	// dynamic size matrix type
-	printf("Is Matrix<float, Dynamic, Dynamic> and MatrixXf are same type ? %s\n", typeid(Matrix<float, Dynamic, Dynamic>) == typeid(MatrixXf) ? "yes" : "no");
-	printf("Is Matrix<float, Dynamic, 1> and VectorXf are same type ? %s\n", typeid(Matrix<float, Dynamic, 1>) == typeid(VectorXf) ? "yes" : "no");
-	printf("Is Matrix<float, 1, Dynamic> and RowVectorXf are same type ? %s\n", typeid(Matrix<float, 1, Dynamic>) == typeid(RowVectorXf) ? "yes" : "no");
+	printf("Matrix<float, Dynamic, Dynamic> == MatrixXf ? %s\n", typeid(Matrix<float, Dynamic, Dynamic>) == typeid(MatrixXf) ? "yes" : "no");
+	printf("Matrix<float, Dynamic, 1> == VectorXf ? %s\n", typeid(Matrix<float, Dynamic, 1>) == typeid(VectorXf) ? "yes" : "no");
+	printf("Matrix<float, 1, Dynamic> == RowVectorXf ? %s\n", typeid(Matrix<float, 1, Dynamic>) == typeid(RowVectorXf) ? "yes" : "no");
 
 	// coefficient accessors (matrix element is called 'coefficient' in Eigen)
 	Matrix3f m1;
@@ -69,8 +69,6 @@ void TestEigen() {
 	// LU decomposition
 	PartialPivLU<Matrix3f> decomp(m3);
 	Vector3f x = decomp.solve(v1);
-
-	printf("is identity ? %s\n", m1 == Matrix3f::Identity() ? "true" : "false");
 }
 
 int main() {
