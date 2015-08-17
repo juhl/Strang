@@ -149,8 +149,8 @@ void TestLU() {
 	MatrixXf l(DIMENSION, DIMENSION);
 	MatrixXf u(DIMENSION, DIMENSION);
 	MatrixXf p(DIMENSION, DIMENSION);
-	bool invertible = ::LU(a, l, u, p);
 
+	bool invertible = ::LU(a, l, u, p);
 	if (!invertible) {
 		std::cout << "ERROR: A is not invertible !!\n";
 		return;

@@ -10,6 +10,7 @@ using namespace Eigen;
 bool GaussElimination(const MatrixXf &a, const VectorXf &b, MatrixXf &u, VectorXf &c) {
 	// 'a' should be a square matrix
 	assert(a.rows() == a.cols());
+	assert(a.cols() == b.rows());
 
 	// left hand side matrix A
 	u = a;
@@ -96,6 +97,37 @@ bool SolveGaussElimination(const MatrixXf &a, const VectorXf &b, VectorXf &x) {
 	return true;
 }
 
+void TestGaussElimination() {
+	const int DIMENSION = 4;
+
+	MatrixXf a(DIMENSION, DIMENSION);
+	a << MatrixXf::Random(DIMENSION, DIMENSION);
+
+	VectorXf b(DIMENSION);
+	b << VectorXf::Random(DIMENSION);
+
+	VectorXf x;
+
+	bool invertible = ::SolveGaussElimination(a, b, x);
+	if (!invertible) {
+		std::cout << "ERROR: A is not invertible !!\n";
+		return;
+	}
+
+	std::cout << "A =\n";
+	std::cout << a << "\n\n";
+
+	std::cout << "b =\n";
+	std::cout << b << "\n\n";
+
+	std::cout << "Ax = b, x =\n";
+	std::cout << x << "\n\n";
+
+	x = a.lu().solve(b);
+	std::cout << "Ax = b, x =\n";
+	std::cout << x << "\n\n";
+}
+
 // Gauss-Jordan elimination
 // [ A | I ] = [ I | A^(-1) ]
 bool GaussJordanElimination(const MatrixXf &a, MatrixXf &ia) {
@@ -144,7 +176,7 @@ bool GaussJordanElimination(const MatrixXf &a, MatrixXf &ia) {
 
 			// subtract a row from scaled pivot row
 			e(r, i) -= scalar * e(i, i);
-			
+
 			// subtract augmented part too
 			ia.row(r) -= scalar * ia.row(i);
 		}
@@ -157,36 +189,6 @@ bool GaussJordanElimination(const MatrixXf &a, MatrixXf &ia) {
 	return true;
 }
 
-void TestGaussElimination() {
-	const int DIMENSION = 4;
-
-	MatrixXf a(DIMENSION, DIMENSION);
-	a << MatrixXf::Random(DIMENSION, DIMENSION);
-
-	VectorXf b(DIMENSION);
-	b << VectorXf::Random(DIMENSION);
-
-	VectorXf x;
-	bool invertible = ::SolveGaussElimination(a, b, x);
-	if (!invertible) {
-		std::cout << "ERROR: A is not invertible !!\n";
-		return;
-	}
-
-	std::cout << "A =\n";
-	std::cout << a << "\n\n";
-
-	std::cout << "b =\n";
-	std::cout << b << "\n\n";
-
-	std::cout << "Ax = b, x =\n";
-	std::cout << x << "\n\n";
-
-	x = a.lu().solve(b);
-	std::cout << "Ax = b, x =\n";
-	std::cout << x << "\n\n";
-}
-
 void TestGaussJordanElimination() {
 	const int DIMENSION = 4;
 
@@ -194,6 +196,7 @@ void TestGaussJordanElimination() {
 	a << MatrixXf::Random(DIMENSION, DIMENSION);
 
 	MatrixXf ia(DIMENSION, DIMENSION);
+
 	bool invertible = ::GaussJordanElimination(a, ia);
 	if (!invertible) {
 		std::cout << "ERROR: A is not invertible !!\n";
