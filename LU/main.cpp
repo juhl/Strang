@@ -6,6 +6,7 @@
 using namespace Eigen;
 
 // My own implementation of LU decomposition with partial pivoting
+// PA = LU
 bool LU(const MatrixXf &a, MatrixXf &l, MatrixXf &u, MatrixXf &p) {
 	// 'a' should be a square matrix, so does 'l', 'u', and 'p'
 	assert(a.rows() == a.cols());
@@ -75,7 +76,7 @@ bool LU(const MatrixXf &a, MatrixXf &l, MatrixXf &u, MatrixXf &p) {
 	// generate permutation matrix P with 'row_indexes'
 	p = MatrixXf::Zero(size, size);
 	for (int r = 0; r < size; r++) {
-		p.row(r)[row_indexes[r]] = 1.0f;
+		p.row(r)(row_indexes[r]) = 1.0f;
 	}
 
 	return true;

@@ -43,7 +43,7 @@ bool GaussElimination(const MatrixXf &a, const VectorXf &b, MatrixXf &u, VectorX
 			// swap rows of U
 			u.row(i).swap(u.row(pivot_index));
 			// swap rows of c
-			std::swap(c[i], c[pivot_index]);
+			std::swap(c(i), c(pivot_index));
 		}
 
 		for (int r = i + 1; r < a.rows(); r++) {
@@ -54,7 +54,7 @@ bool GaussElimination(const MatrixXf &a, const VectorXf &b, MatrixXf &u, VectorX
 			for (int c = i; c < a.cols(); c++) {
 				u(r, c) -= scaler * u(i, c);
 			}
-			c[r] -= scaler * c[i];
+			c(r) -= scaler * c(i);
 		}
 	}
 
@@ -90,18 +90,6 @@ bool SolveGaussElimination(const MatrixXf &a, const VectorXf &b, VectorXf &x) {
 	x = SolveUTriangular(u, c);
 
 	return true;
-}
-
-float Determinant(const MatrixXf &a) {
-	MatrixXf u(a.rows(), a.cols());
-	VectorXf b(a.rows());
-	VectorXf c(a.rows());
-
-	if (!GaussElimination(a, b, u, c)) {
-		return false;
-	}
-
-	return u.diagonal().prod();
 }
 
 void TestGaussElimination() {
