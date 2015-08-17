@@ -59,17 +59,20 @@ bool LU(const MatrixXf &a, MatrixXf &l, MatrixXf &u, MatrixXf &p) {
 			}
 		}
 
+		float invPivot = 1.0f / pivot;
+
+		// elimination process
 		for (int r = i + 1; r < size; r++) {
-			// scaler for subtract a row
-			float scaler = u(r, i) / pivot;
+			// scalar for subtract a row
+			float scalar = u(r, i) * invPivot;
 
 			// subtract a row from scaled pivot row
 			for (int c = i; c < size; c++) {
-				u(r, c) -= scaler * u(i, c);
+				u(r, c) -= scalar * u(i, c);
 			}
 
-			// scaler matches with L component
-			l(r, i) = scaler;
+			// scalar matches with L component
+			l(r, i) = scalar;
 		}
 	}
 
