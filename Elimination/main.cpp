@@ -6,16 +6,18 @@
 using namespace Eigen;
 
 // Gaussian elimination
-// [ A | b ] = [ U | c ]
+// [ A | b ] -> [ U | c ]
 bool GaussElimination(const MatrixXf &a, const VectorXf &b, MatrixXf &u, VectorXf &c) {
 	// 'a' should be a square matrix
 	assert(a.rows() == a.cols());
 	assert(a.cols() == b.rows());
 
 	// left hand side matrix A
+	// A will be changed to the U
 	u = a;
 
 	// right hand side vector b
+	// b will be changed to the c
 	c = b;
 
 	// 'i' is diagonal index of the matrix 
@@ -129,23 +131,46 @@ void TestGaussElimination() {
 }
 
 // Gauss-Jordan elimination
-// [ A | I ] = [ I | A^(-1) ]
-bool GaussJordanElimination(const MatrixXf &a, MatrixXf &ia) {
+// [ A | I ] -> [ I | B ] = [ I | A^(-1) ]
+bool GaussJordanElimination(const MatrixXf &a, MatrixXf &b) {
 	// 'a' should be a square matrix
 	assert(a.rows() == a.cols());
-	// 'ia' have the same size
-	assert(a.rows() == ia.rows() && a.cols() == ia.cols());
+	// 'b' have the same size
+	assert(a.rows() == b.rows() && a.cols() == b.cols());
 
+	// A will be changed to the I
 	MatrixXf e = a;
 
-	ia = MatrixXf::Identity(a.rows(), a.cols());
+	// I will be changed to the B
+	b = MatrixXf::Identity(a.rows(), a.cols());
 
 	// 'i' is diagonal index of the matrix 
 	for (int i = 0; i < a.rows(); i++) {
-		float pivot = e(i, i);
+		// find pivot index
+		int pivot_index = -1;
+		float maximum = 0.0f;
+		for (int r = i; r < a.rows(); r++) {
+			float value = abs(e(r, i));
+
+			if (value > maximum) {
+				pivot_index = r;
+				maximum = value;
+			}
+		}
+
+		// get the pivot
+		float pivot = e(pivot_index, i);
 		if (pivot == 0.0f) {
 			// abandon elimination if pivot is not exist
 			return false;
+		}
+
+		// if row exchange is required
+		if (pivot_index > i) {
+			// swap rows of E
+			e.row(i).swap(e.row(pivot_index));
+			// swap rows of 
+			b.row(i).swap(b.row(pivot_index));
 		}
 
 		float invPivot = 1.0f / pivot;
@@ -160,7 +185,7 @@ bool GaussJordanElimination(const MatrixXf &a, MatrixXf &ia) {
 				e(r, c) -= scalar * e(i, c);
 			}
 			// subtract augmented part too
-			ia.row(r) -= scalar * ia.row(i);
+			b.row(r) -= scalar * b.row(i);
 		}
 	}
 
@@ -178,12 +203,12 @@ bool GaussJordanElimination(const MatrixXf &a, MatrixXf &ia) {
 			e(r, i) -= scalar * e(i, i);
 
 			// subtract augmented part too
-			ia.row(r) -= scalar * ia.row(i);
+			b.row(r) -= scalar * b.row(i);
 		}
 
 		// make diagonal element to '1'
 		//e(i, i) *= invPivot;
-		ia.row(i) *= invPivot;
+		b.row(i) *= invPivot;
 	}
 
 	return true;
