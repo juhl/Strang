@@ -12,10 +12,11 @@ bool LU(const MatrixXf &a, MatrixXf &l, MatrixXf &u, MatrixXf &p) {
 	assert(a.rows() == a.cols());
 	int size = a.rows();
 
-	// upper triangular matrix
+	// upper triangular matrix U
+	// A will be changed to the U
 	u = a;
 
-	// lower triangular matrix
+	// lower triangular matrix L
 	l = MatrixXf::Identity(size, size);
 
 	// indexes for row exchanges
