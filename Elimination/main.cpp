@@ -13,11 +13,11 @@ bool GaussElimination(const MatrixXf &a, const VectorXf &b, MatrixXf &u, VectorX
 	assert(a.cols() == b.rows());
 
 	// left hand side matrix A
-	// A will be changed to the U
+	// A will be converted to the U
 	u = a;
 
 	// right hand side vector b
-	// b will be changed to the c
+	// b will be converted to the c
 	c = b;
 
 	// 'i' is diagonal index of the matrix 
@@ -56,8 +56,11 @@ bool GaussElimination(const MatrixXf &a, const VectorXf &b, MatrixXf &u, VectorX
 			// scalar for subtract a row
 			float scalar = u(r, i) * invPivot;
 
+			// subtract first element of the pivot row is zero
+			u(r, i) = 0.0f;
+
 			// subtract a row from scaled pivot row
-			for (int c = i; c < a.cols(); c++) {
+			for (int c = i + 1; c < a.cols(); c++) {
 				u(r, c) -= scalar * u(i, c);
 			}
 			// subtract augmented part too
@@ -138,10 +141,10 @@ bool GaussJordanElimination(const MatrixXf &a, MatrixXf &b) {
 	// 'b' have the same size
 	assert(a.rows() == b.rows() && a.cols() == b.cols());
 
-	// A will be changed to the I
+	// A will be converted to the I
 	MatrixXf e = a;
 
-	// I will be changed to the B
+	// I will be converted to the B
 	b = MatrixXf::Identity(a.rows(), a.cols());
 
 	// 'i' is diagonal index of the matrix 
@@ -169,7 +172,7 @@ bool GaussJordanElimination(const MatrixXf &a, MatrixXf &b) {
 		if (pivot_index > i) {
 			// swap rows of E
 			e.row(i).swap(e.row(pivot_index));
-			// swap rows of 
+			// swap rows of B
 			b.row(i).swap(b.row(pivot_index));
 		}
 
@@ -180,8 +183,11 @@ bool GaussJordanElimination(const MatrixXf &a, MatrixXf &b) {
 			// scalar for subtract a row
 			float scalar = e(r, i) * invPivot;
 
+			// subtract first element of the pivot row is zero
+			e(r, i) = 0.0f;
+
 			// subtract a row from scaled pivot row
-			for (int c = i; c < a.cols(); c++) {
+			for (int c = i + 1; c < a.cols(); c++) {
 				e(r, c) -= scalar * e(i, c);
 			}
 			// subtract augmented part too

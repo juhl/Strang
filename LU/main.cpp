@@ -5,15 +5,61 @@
 
 using namespace Eigen;
 
-// My own implementation of LU decomposition with partial pivoting
-// PA = LU
-bool LU(const MatrixXf &a, MatrixXf &l, MatrixXf &u, MatrixXf &p) {
-	// 'a' should be a square matrix, so does 'l', 'u', and 'p'
+// Compute LU decomposition with no pivoting on the given square matrix. 
+// A = LU
+bool LU(const MatrixXf &a, MatrixXf &l, MatrixXf &u) {
+	// 'a' should be a square matrix
 	assert(a.rows() == a.cols());
 	int size = a.rows();
 
 	// upper triangular matrix U
-	// A will be changed to the U
+	// A will be converted to the U
+	u = a;
+
+	// lower triangular matrix L
+	l = MatrixXf::Identity(size, size);
+
+	// 'i' is diagonal index of the matrix 
+	for (int i = 0; i < size; i++) {
+		// get the pivot
+		float pivot = u(i, i);
+		if (pivot == 0.0f) {
+			// abandon elimination if pivot is not exist
+			return false;
+		}
+
+		float invPivot = 1.0f / pivot;
+
+		// elimination process
+		for (int r = i + 1; r < size; r++) {
+			// scalar for subtract a row
+			float scalar = u(r, i) * invPivot;
+
+			// subtract first element of the pivot row is zero
+			u(r, i) = 0.0f;
+
+			// subtract a row from scaled pivot row
+			for (int c = i + 1; c < size; c++) {
+				u(r, c) -= scalar * u(i, c);
+			}
+
+			// scalar matches with L component
+			l(r, i) = scalar;
+		}
+	}
+
+	return true;
+}
+
+// Compute LU decomposition with partial pivoting on the given square matrix.
+// PA = LU
+bool PartialPivotLU(const MatrixXf &a, MatrixXf &l, MatrixXf &u, MatrixXf &p) {
+	// 'a' should be a square matrix
+	assert(a.rows() == a.cols());
+	int size = a.rows();
+
+	// upper triangular matrix U
+	// A will be converted to the U
 	u = a;
 
 	// lower triangular matrix L
@@ -67,8 +113,11 @@ bool LU(const MatrixXf &a, MatrixXf &l, MatrixXf &u, MatrixXf &p) {
 			// scalar for subtract a row
 			float scalar = u(r, i) * invPivot;
 
+			// subtract first element of the pivot row is zero
+			u(r, i) = 0.0f;
+
 			// subtract a row from scaled pivot row
-			for (int c = i; c < size; c++) {
+			for (int c = i + 1; c < size; c++) {
 				u(r, c) -= scalar * u(i, c);
 			}
 
@@ -80,7 +129,7 @@ bool LU(const MatrixXf &a, MatrixXf &l, MatrixXf &u, MatrixXf &p) {
 	// generate permutation matrix P with 'row_indexes'
 	p = MatrixXf::Zero(size, size);
 	for (int r = 0; r < size; r++) {
-		p.row(r)(row_indexes[r]) = 1.0f;
+		p(r, row_indexes[r]) = 1.0f;
 	}
 
 	return true;
@@ -151,7 +200,7 @@ void TestLU() {
 	MatrixXf u(DIMENSION, DIMENSION);
 	MatrixXf p(DIMENSION, DIMENSION);
 
-	bool invertible = ::LU(a, l, u, p);
+	bool invertible = ::PartialPivotLU(a, l, u, p);
 	if (!invertible) {
 		std::cout << "ERROR: A is not invertible !!\n";
 		return;
