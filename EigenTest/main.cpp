@@ -5,8 +5,7 @@
 
 using namespace Eigen;
 
-// Example code for using Eigen
-void TestEigen() {
+void TestBasic() {
 	// fixed size matrix type
 	printf("Matrix<float, 2, 2> == Matrix2f ? %s\n", typeid(Matrix<float, 2, 2>) == typeid(Matrix2f) ? "yes" : "no");
 	printf("Matrix<float, 3, 3> == Matrix3f ? %s\n", typeid(Matrix<float, 3, 3>) == typeid(Matrix3f) ? "yes" : "no");
@@ -65,16 +64,139 @@ void TestEigen() {
 	std::cout << v1 << std::endl;
 	printf("v1.norm (length) = %f == %f\n", v1.norm(), sqrt(v1[0] * v1[0] + v1[1] * v1[1] + v1[2] * v1[2]));
 	printf("v1.squredNorm (squared length) = %f == %f\n", v1.squaredNorm(), v1[0] * v1[0] + v1[1] * v1[1] + v1[2] * v1[2]);
+}
 
-	// LU decomposition
-	PartialPivLU<Matrix3f> decomp(m3);
-	Vector3f x = decomp.solve(v1);
+void TestLinearSystemSolver() {
+	Matrix3f A = Matrix3f::Random(3, 3);
+	A = A.transpose() * A; // make A to symmetric positive (semi) definite
+	Vector3f b = Vector3f::Random(3);
+	Vector3f x;
+	float relativeError; // check the solution really exist with this
+
+	std::cout << "=============================" << std::endl;
+	std::cout << "Testing linear system solvers" << std::endl;
+	std::cout << "=============================" << std::endl;
+
+	// A must be invertible
+	PartialPivLU<Matrix3f> partialPivLU(A);
+	x = partialPivLU.solve(b);
+	relativeError = (A * x - b).norm() / b.norm();
+	if (relativeError < 0.00001) {
+		std::cout << "Solution using partial pivoting LU = " << std::endl << x.transpose() << std::endl;
+	}
+
+	FullPivLU<Matrix3f> fullPivLU(A);
+	x = fullPivLU.solve(b);
+	relativeError = (A * x - b).norm() / b.norm();
+	if (relativeError < 0.00001) {
+		std::cout << "Solution using full pivoting LU = " << std::endl << x.transpose() << std::endl;
+	}
+
+	HouseholderQR<Matrix3f> householderQR(A);
+	x = householderQR.solve(b);
+	relativeError = (A * x - b).norm() / b.norm();
+	if (relativeError < 0.00001) {
+		std::cout << "Solution using Householder QR = " << std::endl << x.transpose() << std::endl;
+	}
+
+	ColPivHouseholderQR<Matrix3f> colPivHouseholderQR(A);
+	x = colPivHouseholderQR.solve(b);
+	relativeError = (A * x - b).norm() / b.norm();
+	if (relativeError < 0.00001) {
+		std::cout << "Solution using column pivoting Householder QR = " << std::endl << x.transpose() << std::endl;
+	}
+
+	FullPivHouseholderQR<Matrix3f> fullPivHouseholderQR(A);
+	x = fullPivHouseholderQR.solve(b);
+	relativeError = (A * x - b).norm() / b.norm();
+	if (relativeError < 0.00001) {
+		std::cout << "Solution using full pivoting Householder QR = " << std::endl << x.transpose() << std::endl;
+	}
+
+	// A must be positive definite
+	LLT<Matrix3f> llt(A);
+	x = llt.solve(b);
+	relativeError = (A * x - b).norm() / b.norm();
+	if (relativeError < 0.00001) {
+		std::cout << "Solution using Cholesky decomposition = " << std::endl << x.transpose() << std::endl;
+	}
+
+	// A must not be indefinite
+	LDLT<Matrix3f> ldlt(A);
+	x = ldlt.solve(b);
+	relativeError = (A * x - b).norm() / b.norm();
+	if (relativeError < 0.00001) {
+		std::cout << "Solution using LDLT decomposition = " << std::endl << x.transpose() << std::endl;
+	}
+}
+
+void TestLeastSquares() {
+	MatrixXf A = MatrixXf::Random(10, 2);
+	VectorXf b = VectorXf::Random(10);
+	Vector2f x;
+
+	std::cout << "=============================" << std::endl;
+	std::cout << "Testing least squares solvers" << std::endl;
+	std::cout << "=============================" << std::endl;
+
+	x = A.jacobiSvd(ComputeThinU | ComputeThinV).solve(b);
+	std::cout << "Solution using Jacobi SVD = " << x.transpose() << std::endl;
+
+	x = A.colPivHouseholderQr().solve(b);
+	std::cout << "Solution using column pivoting Householder QR = " << x.transpose() << std::endl;
+
+	// If the matrix A is ill-conditioned, then this is not a good method
+	x = (A.transpose() * A).ldlt().solve(A.transpose() * b);
+	std::cout << "Solution using normal equation = " << x.transpose() << std::endl;
+}
+
+void TestEigenSolver() {
+	Matrix3f A = Matrix3f::Random(3, 3);
+	A = A.transpose() * A; // make A to symmetric positive (semi) definite
+	Vector3f b = Vector3f::Random(3);
+	Vector3f x;
+
+	std::cout << "=====================" << std::endl;
+	std::cout << "Testing Eigen solvers" << std::endl;
+	std::cout << "=====================" << std::endl;
+
+	// A must be (real) symmetric 
+	SelfAdjointEigenSolver<Matrix3f> selfAdjointEigenSolver(A);
+	std::cout << "Eigenvalues = " << selfAdjointEigenSolver.eigenvalues().transpose() << std::endl;
+	std::cout << "Eigenvectors = " << selfAdjointEigenSolver.eigenvectors() << std::endl;
+
+	// NOTE: sort by yourself
+	EigenSolver<Matrix3f> eigenSolver(A);
+	std::cout << "Eigenvalues = " << eigenSolver.eigenvalues().transpose() << std::endl;
+	std::cout << "Eigenvectors = " << eigenSolver.eigenvectors() << std::endl;
+}
+
+void TestSVD() {
+	MatrixXf A = MatrixXf::Random(4, 3);
+
+	std::cout << "===========" << std::endl;
+	std::cout << "Testing SVD" << std::endl;
+	std::cout << "===========" << std::endl;
+
+	JacobiSVD<MatrixXf> jacobiSVD(A, ComputeThinU | ComputeThinV);
+	std::cout << "A = " << A << std::endl;
+	std::cout << "U = " << jacobiSVD.matrixU() << std::endl;
+	std::cout << "Sigma = " << jacobiSVD.singularValues().transpose() << std::endl;
+	std::cout << "V = " << jacobiSVD.matrixV() << std::endl;
 }
 
 int main() {
 	srand((unsigned int)time(0));
 
-	TestEigen();
+	TestBasic();
+
+	TestLinearSystemSolver();
+
+	TestLeastSquares();
+
+	TestEigenSolver();
+
+	TestSVD();
 
 	getchar();
 
